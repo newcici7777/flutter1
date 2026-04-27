@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shop/api/user.dart';
 import 'package:shop/pages/Cart/index.dart';
 import 'package:shop/pages/Home/index.dart';
 import 'package:shop/pages/Menu/index.dart';
 import 'package:shop/pages/Person/index.dart';
+import 'package:shop/stores/TokenManager.dart';
+import 'package:shop/stores/UserController.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key? key}) : super(key: key);
@@ -37,6 +41,23 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   List<Widget> _getChildren() {
     return [HomeView(), CartView(), PersonView(), MenuView()];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initUser();
+  }
+
+  final UserController _userController = Get.put(UserController());
+  _initUser() async {
+    await tokenManager.init();
+    print("token2 = ${tokenManager.getToken()}");
+    if (tokenManager.getToken().isNotEmpty) {
+      final res = await getUserProfileAPI();
+      print("res = $res");
+      _userController.updateUserInfo(res);
+    }
   }
 
   @override

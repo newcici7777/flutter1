@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shop/api/user.dart';
+import 'package:shop/stores/TokenManager.dart';
+import 'package:shop/stores/UserController.dart';
+import 'package:shop/utils/LoadingDialog.dart';
 import 'package:shop/utils/ToastUtils.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,6 +19,7 @@ final _formKey = GlobalKey<FormState>();
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  final UserController _userController = Get.find();
   Widget _buildPhoneField() {
     return TextFormField(
         validator: (value) {
@@ -86,14 +91,19 @@ class _LoginPageState extends State<LoginPage> {
 
   _login() async {
     try {
+      LoadingDialog.show(context);
+      // 只能使用 account 13200000001 密碼 123456 登入
       final res = await loginAPI({
         "account": _phoneController.text,
         "password": _passwordController.text
       });
-      print(res);
+      _userController.updateUserInfo(res);
+      tokenManager.setToken(res.token ?? '');
       ToastUtils.show(context, "登入成功");
-      Navigator.pop(context);
+      Navigator.pushNamed(context, "/");
     } catch (e) {
+      LoadingDialog.hide(context);
+      print((e as DioException).message ?? "登入失敗");
       ToastUtils.show(context, (e as DioException).message ?? "登入失敗");
     }
   }

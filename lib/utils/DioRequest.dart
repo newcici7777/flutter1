@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shop/contants/index.dart';
+import 'package:shop/stores/TokenManager.dart';
 
 class DioRequest {
   final _dio = Dio();
@@ -9,9 +10,15 @@ class DioRequest {
       ..connectTimeout = Duration(seconds: GlobalConstants.TIME_OUT)
       ..sendTimeout = Duration(seconds: GlobalConstants.TIME_OUT)
       ..receiveTimeout = Duration(seconds: GlobalConstants.TIME_OUT);
+    _addInterceptor();
   }
   void _addInterceptor() {
     _dio.interceptors.add(InterceptorsWrapper(onRequest: (request, handler) {
+      print("token3333 = ${tokenManager.getToken()}");
+      if (tokenManager.getToken().isNotEmpty)
+        request.headers = {
+          "Authorization": "Bearer ${tokenManager.getToken()}"
+        };
       handler.next(request);
     }, onResponse: (response, handler) {
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
@@ -31,6 +38,7 @@ class DioRequest {
   }
 
   Future<dynamic> post(String url, {Map<String, dynamic>? params}) {
+    print("params:" + params.toString());
     return _handleResponse(_dio.post(url, data: params));
   }
 
