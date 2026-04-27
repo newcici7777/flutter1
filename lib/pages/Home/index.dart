@@ -5,6 +5,7 @@ import 'package:shop/pages/Home/my_category.dart';
 import 'package:shop/pages/Home/my_hasmore.dart';
 import 'package:shop/pages/Home/my_slider.dart';
 import 'package:shop/pages/Home/my_suggestion.dart';
+import 'package:shop/utils/ToastUtils.dart';
 import 'package:shop/viewmodels/home.dart';
 
 class HomeView extends StatefulWidget {
@@ -36,11 +37,12 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    _getBannerList();
-    _getCategoryList();
-    _getProductList();
-    _getRecommendList();
     _registerEvent();
+    Future.microtask(() {
+      _paddingTop = 100;
+      setState(() {});
+      _refreshIndicatorKey.currentState?.show();
+    });
   }
 
   void _registerEvent() {
@@ -53,23 +55,20 @@ class _HomeViewState extends State<HomeView> {
   }
 
   // 分類列表
-  void _getCategoryList() async {
+  Future<void> _getCategoryList() async {
     _categoryItems = await getCategoryListAPI();
-    setState(() {});
   }
 
   // 輪播圖列表
-  void _getBannerList() async {
+  Future<void> _getBannerList() async {
     _bannerItems = await getBannerListAPI();
-    setState(() {});
   }
 
   SpecialRecommendResult _specialRecommendResult =
       SpecialRecommendResult(id: "", title: "", subTypes: []);
   // 商品列表
-  void _getProductList() async {
+  Future<void> _getProductList() async {
     _specialRecommendResult = await getProductListAPI();
-    setState(() {});
   }
 
   // 特惠推荐 - 商品列表
@@ -78,7 +77,7 @@ class _HomeViewState extends State<HomeView> {
   int _pageNum = 1;
   bool _isLoading = false;
   bool _hasMore = true;
-  void _getRecommendList() async {
+  Future<void> _getRecommendList() async {
     if (_isLoading || !_hasMore) {
       return;
     }
@@ -112,16 +111,34 @@ class _HomeViewState extends State<HomeView> {
   final ScrollController _scrollController = ScrollController();
 
   Future<void> _refresh() async {
-    print("refresh");
+    _pageNum = 1;
+    _hasMore = true;
+    _isLoading = false;
+    await _getBannerList();
+    await _getCategoryList();
+    await _getProductList();
+    await _getRecommendList();
+    ToastUtils.show(context, "Loading success");
+    _paddingTop = 0;
+    setState(() {});
   }
 
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+  double _paddingTop = 0;
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+        key: _refreshIndicatorKey,
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
         onRefresh: _refresh,
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: _getScrollChildren(),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          padding: EdgeInsets.only(top: _paddingTop),
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: _getScrollChildren(),
+          ),
         ));
   }
 }

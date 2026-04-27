@@ -10,8 +10,17 @@ class PersonView extends StatefulWidget {
 class _PersonViewStateState extends State<PersonView> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("我的"),
+    return Container(
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, "/login");
+            },
+            child: Text("登入"),
+          ),
+        ],
+      ),
     );
   }
 }

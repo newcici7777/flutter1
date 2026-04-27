@@ -9,6 +9,7 @@ class HttpConstants {
   static const String CATEGORY_LIST = '/home/category/head';
   static const String PRODUCT_LIST = '/hot/preference';
   static const String RECOMMEND_LIST = "/home/recommend";
+  static const String LOGIN = "/login";
 }
 
 // 特惠推荐 - 商品项

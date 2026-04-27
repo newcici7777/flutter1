@@ -14,14 +14,14 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final List<Map<String, String>> _tabList = [
     {
-      "icon": "lib/assets/cart_normal.png",
-      "active_icon": "lib/assets/cart_active.png",
-      "label": "购物车",
-    },
-    {
       "icon": "lib/assets/home_normal.png",
       "active_icon": "lib/assets/home_active.png",
       "label": "首页",
+    },
+    {
+      "icon": "lib/assets/cart_normal.png",
+      "active_icon": "lib/assets/cart_active.png",
+      "label": "购物车",
     },
     {
       "icon": "lib/assets/person_normal.png",
@@ -36,7 +36,7 @@ class _MainPageState extends State<MainPage> {
   ];
   int _currentIndex = 0;
   List<Widget> _getChildren() {
-    return [CartView(), HomeView(), PersonView(), MenuView()];
+    return [HomeView(), CartView(), PersonView(), MenuView()];
   }
 
   @override
